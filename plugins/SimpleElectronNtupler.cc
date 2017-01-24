@@ -1109,9 +1109,9 @@ SimpleElectronNtupler::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       massElec_.push_back( el->mass() );
       chargeElec_.push_back( el->charge() );
 
-      err_scale = eScaler.ScaleCorrectionUncertainty(RunNo, el->isEB(), el->r9(), el->superCluster()->eta(), el->et());
-      
       cout<<"electron = "<<i<<" in barrel = "<<el->isEB()<<" r9 = "<<el->r9()<<" eta = "<<el->eta()<<" eta SC = "<<el->superCluster()->eta()<<" et = "<<el->et()<<" pt = "<<el->pt()<<" energy = "<<el->energy()<<endl;
+      
+      err_scale = eScaler.ScaleCorrectionUncertainty(RunNo, el->isEB(), el->r9(), el->superCluster()->eta(), el->et());
       
       sig  = eScaler.getSmearingSigma(RunNo, el->isEB(), el->r9(), el->superCluster()->eta(), el->et(), 0, 0);
       sig1 = eScaler.getSmearingSigma(RunNo, el->isEB(), el->r9(), el->superCluster()->eta(), el->et(), 1, 0);
