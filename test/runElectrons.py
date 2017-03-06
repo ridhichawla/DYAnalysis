@@ -44,9 +44,13 @@ inputFilesMiniAOD = cms.untracked.vstring(
     #'/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20000/00050EF1-F9A6-E511-86B2-0025905A48D0.root'
     #'/store/mc/RunIIFall15MiniAODv2/ZToEE_NNPDF30_13TeV-powheg_M_2300_3500/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/C84500E1-6BB8-E511-A9D6-002590E505FE.root'
     '/store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-100to200_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext1-v1/60000/18A7905C-2ABF-E511-9F31-0025904A862C.root'
-    #'file:/afs/cern.ch/user/a/andriusj/dir-work/DY13TeV-unfold/file18A7-miniAODSIM.root'
+
 
 )
+
+#
+# You can list here either AOD or miniAOD files, but not both types mixed
+#
 useAOD = False
 if useAOD == True :
     inputFiles = inputFilesAOD
@@ -56,10 +60,11 @@ else :
     print("MiniAOD input files are used")
 process.source = cms.Source ("PoolSource", fileNames = inputFiles )                             
 
-#process.load('EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi')
+process.load('EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi')
 
+#
 # Set up electron ID (VID framework)
-
+#
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 # turn on VID producer, indicate data format  to be
 # DataFormat.AOD or DataFormat.MiniAOD, as appropriate 
@@ -72,8 +77,7 @@ switchOnVIDElectronIdProducer(process, dataFormat)
 
 # define which IDs we want to produce
 my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff',
-                 #'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff',
-                 #'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff',
+                 #'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_25ns_V1_cff',
                  'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff']
 
 #add them to the VID producer
@@ -86,7 +90,6 @@ process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('selectedElectrons')
 #
 # Configure the ntupler module
 #
-
 process.selectedElectrons = cms.EDFilter("PATElectronSelector", 
 src = cms.InputTag("slimmedElectrons"), 
 cut = cms.string("pt > 9 && abs(eta)<2.5")
@@ -112,8 +115,8 @@ process.ntupler = cms.EDAnalyzer('SimpleElectronNtupler',
                                  #
                                  # Objects specific to AOD format
                                  #
-                                 electrons    = cms.InputTag("gedGsfElectrons"),
-                                 #electrons    = cms.InputTag("calibratedElectrons"),
+                                 #electrons    = cms.InputTag("gedGsfElectrons"),
+                                 electrons    = cms.InputTag("calibratedElectrons"),
                                  genParticles = cms.InputTag("genParticles"),
                                  vertices     = cms.InputTag("offlinePrimaryVertices"),
                                  conversions  = cms.InputTag('allConversions'),
@@ -137,31 +140,15 @@ process.ntupler = cms.EDAnalyzer('SimpleElectronNtupler',
                                  eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
                                  eleTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
 				 eleHEEPIdMap = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV60"),
-                                 #eletrigMVAlooseIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp90"),
-                                 #eletrigMVAtightIdMap =  cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp80"),
-                                 #elenontrigMVAlooseIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp90"),
-                                 #elenontrigMVAtightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp80"),
 				 phoLooseIdMap = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-loose"),
                                  phoMediumIdMap = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-medium"),
                                  phoTightIdMap = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-tight"),
-				 #
-                                 # ValueMaps with MVA results
-                                 #
-                                 #mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Phys14NonTrigValues"),
-                                 #mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Phys14NonTrigCategories"),
+				 # 
 				 # This is a fairly verbose mode if switched on, with full cut flow 
 				 # diagnostics for each candidate. Use it in a low event count test job.
 				 eleMediumIdFullInfoMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium",),
 				 eleIdVerbose = cms.bool(False),
 				 objects = cms.InputTag('selectedPatTrigger'),
-				 #tagFilterName   = cms.vstring("hltEle23Ele12CaloIdTrackIdIsoTrackIsoLeg1Filter"),
-				 #probeFilterName = cms.vstring("hltEle23Ele12CaloIdTrackIdIsoTrackIsoLeg2Filter")
-
-#                                 nSmearTests = cms.uint32(100),
-#                                 rndSeed = cms.int32(11001),
-#                                 gbrForestName = cms.string('gedelectron_p4combination_25ns'),
-#                                 ecalEnCorrectionFilePath = cms.string('EgammaAnalysis/ElectronTools/data/76X_16DecRereco_2015'),
-#                                 debugSmear = cms.bool(False)
                                  )
 
 process.primaryVertexFilter  = cms.EDFilter("VertexSelector",
